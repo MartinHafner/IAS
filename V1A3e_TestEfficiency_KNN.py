@@ -3,7 +3,7 @@
 
 # # e)
 
-# In[11]:
+# In[1]:
 
 
 # Programmgeruest zu Versuch 1, Aufgabe 3e
@@ -13,7 +13,7 @@ from time import clock
 from V1A2_Classifier import *
 
 
-# In[12]:
+# In[2]:
 
 
 
@@ -29,7 +29,7 @@ time_comp_naive  = np.zeros(len(N_list));    # allocate memory for time measurem
 time_comp_kdtree = np.zeros(len(N_list));    # allocate memory for time measurements for KNN with KD tree
 
 
-# In[16]:
+# In[3]:
 
 
 # (ii) Make (wall-)time measurements for cross validations of data sets of various sizes N
@@ -71,14 +71,14 @@ for i in range(len(N_list)):
     print("Computing time = ", time_comp_kdtree[i], " sec")
 
 
-# In[17]:
+# In[4]:
 
 
 # (iii) print results
 print("\nResults for N=",N_list,"\ntime_comp_naive=",time_comp_naive,"\ntime_comp_kdtree=",time_comp_kdtree)
 
 
-# In[18]:
+# In[5]:
 
 
 # (iv) plot results

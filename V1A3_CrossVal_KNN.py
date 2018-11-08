@@ -45,7 +45,7 @@
 
 # - pE_naive, pCE_naive sind die Fehlerwerte aus der Kreuzvalidierung und t_naive ist die benötigte Zeit
 
-# In[30]:
+# In[1]:
 
 
 #!/usr/bin/env python
@@ -60,7 +60,7 @@ from V1A2_Classifier import *
 
 
 
-# In[31]:
+# In[2]:
 
 
 #(i) create some synthetic data (2-dimensional Gaussian)
@@ -78,7 +78,7 @@ N,D = X.shape[0], X.shape[1]      # size of data set
 print("Data size: N=",N,", D=",D)
 
 
-# In[32]:
+# In[3]:
 
 
 # (ii) create and test classifiers
@@ -86,7 +86,7 @@ k,S = 5,10                        # k=number of nearest neighbors; S=number of d
 X_test = np.array([[2,1],[5,1],[-1,1]])   # Some additional data vectors to be tested 
 
 
-# In[33]:
+# In[4]:
 
 
 # (ii.a) test of naive KNN classifier
@@ -107,7 +107,7 @@ for x_test in X_test:             # Test some additional data vectors x_test fro
 # # zu c)  
 # - 
 
-# In[34]:
+# In[5]:
 
 
 # (ii.b) test of KD-tree KNN classifier
@@ -126,7 +126,7 @@ for x_test in X_test:             # Test some additional data vectors x_test fro
 
 
 
-# In[35]:
+# In[6]:
 
 
 # (iii) plot data
@@ -145,13 +145,12 @@ plt.show()
 
 # - k = 1 gibt error noch verbessern
 
-# In[36]:
+# In[8]:
 
 
 print("\nFast KNN Classifier based on KD-Trees:","\n---------------------------------------")
-for k in (5,11):
+for k in (1,5,11):
     for S in (1,2,5):
-        print(k," ",S)
         knnc = FastKNNClassifier(C,k)         # create classifier object of class KNNClassifier  
         pE_kdtree,pCE_kdtree = knnc.crossvalidate(S,X,T) # do S-fold cross validation for data X,T
         print("S=", S, " fold Cross-Validation of naive ", k, "-NN-Classifier requires ", t_kdtree, " seconds. Confusion error probability matrix is \n", pCE_kdtree)

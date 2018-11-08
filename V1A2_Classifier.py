@@ -112,7 +112,7 @@ class Classifier:
 # Der KNNClassifier speichert nur die Daten und Labels die ihm gegeben werden.  
 # Damit kann er dann später die Testdaten vergleichen.
 
-# In[43]:
+# In[10]:
 
 
 
@@ -174,10 +174,7 @@ class KNNClassifier(Classifier):
         """
         if k==None: k=self.k                       # use default parameter k?
         idxKNN = self.getKNearestNeighbors(x,k)    # get indexes of k nearest neighbors of x
-        if len(idxKNN) == 1:
-            prediction = self.T[idxKNN[0]] 
-        else:
-            prediction = self.T[max(idxKNN)]                        # REPLACE DUMMY CODE BY YOUR OWN CODE!
+        prediction = self.T[max(idxKNN)]                        # REPLACE DUMMY CODE BY YOUR OWN CODE!
         pClassPosteriori = [0]*self.C
         
         for p in idxKNN :
@@ -190,7 +187,7 @@ class KNNClassifier(Classifier):
 
 # # d)
 
-# In[61]:
+# In[11]:
 
 
 
@@ -233,13 +230,16 @@ class FastKNNClassifier(KNNClassifier):
         """
         if(k==None): k=self.k                      # do a K-NN search...
         _, idxNN = self.kdtree.query(x,k)                              # REPLACE DUMMY CODE BY YOUR OWN CODE! Compute nearest neighbors using the KD-Tree
+        if not idxNN.shape:
+            idxNN = [idxNN]
         return idxNN                               # return indexes of k nearest neighbors
+    
 
 
 
 # # c)
 
-# In[63]:
+# In[16]:
 
 
 

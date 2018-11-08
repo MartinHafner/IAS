@@ -12,7 +12,7 @@ from random import randint
 from V1A2_Classifier import *
 
 
-# In[4]:
+# In[2]:
 
 
 # (I) Load data 
@@ -32,7 +32,7 @@ print("T[0..9]=\n",T[0:10])
 
 # # b)
 
-# In[7]:
+# In[3]:
 
 
 # (II) Test KNN-classifier with S-fold cross validation
@@ -60,12 +60,14 @@ print( "\np_classerror=\n",1.0-accuracy)
 
 # # c)
 
-# In[8]:
+# - die kleinsten S und k scheinen die beste Accuracy zu geben
+
+# In[4]:
 
 
 # (II) Test KNN-classifier with S-fold cross validation
 S_list=[1, 2, 3, 5, 10, 100]                            # parameter S for cross validation; INSERT appropriate values
-K_list=[2,3,4,5,10,15,20]                            # number K of nearest neighbors; INSERT appropriate values
+K_list=[1,2,3,4,5,10,15,20]                            # number K of nearest neighbors; INSERT appropriate values
 accuracy = np.zeros((len(S_list),len(K_list)));   # array to save accuracy of classifier for each value of S and K
 for i in range(len(S_list)):
     S=S_list[i]                      # do an S-fold cross validation
