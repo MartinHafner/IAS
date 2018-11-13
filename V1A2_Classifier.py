@@ -12,7 +12,7 @@
 # - predict : noch nicht implementiert (soll label von x vorhersagen)
 # - crossvalidate : trainiert und testet den Classifier 
 
-# In[8]:
+# In[10]:
 
 
 #!/usr/bin/env python
@@ -22,9 +22,10 @@ import numpy as np
 import scipy.spatial
 from random import randint
 from collections import Counter
+import operator
 
 
-# In[9]:
+# In[11]:
 
 
 # ----------------------------------------------------------------------------------------- 
@@ -112,7 +113,7 @@ class Classifier:
 # Der KNNClassifier speichert nur die Daten und Labels die ihm gegeben werden.  
 # Damit kann er dann später die Testdaten vergleichen.
 
-# In[10]:
+# In[18]:
 
 
 
@@ -174,12 +175,13 @@ class KNNClassifier(Classifier):
         """
         if k==None: k=self.k                       # use default parameter k?
         idxKNN = self.getKNearestNeighbors(x,k)    # get indexes of k nearest neighbors of x
-        prediction = self.T[max(idxKNN)]                        # REPLACE DUMMY CODE BY YOUR OWN CODE!
+                                # REPLACE DUMMY CODE BY YOUR OWN CODE!
         pClassPosteriori = [0]*self.C
         
         for p in idxKNN :
             pClassPosteriori[self.T[p]] = pClassPosteriori[self.T[p]] + 1
         pClassPosteriori = [i/k for i in pClassPosteriori]                # REPLACE DUMMY CODE BY YOUR OWN CODE!
+        prediction, _ = max(enumerate(pClassPosteriori), key=operator.itemgetter(1))
         
         return prediction, pClassPosteriori, idxKNN  # return predicted class, a-posteriori-distribution, and indexes of nearest neighbors
 
@@ -187,7 +189,7 @@ class KNNClassifier(Classifier):
 
 # # d)
 
-# In[11]:
+# In[19]:
 
 
 
@@ -239,7 +241,7 @@ class FastKNNClassifier(KNNClassifier):
 
 # # c)
 
-# In[16]:
+# In[23]:
 
 
 
