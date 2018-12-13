@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[18]:
+# In[1]:
 
 
 #!/usr/bin/env python
@@ -94,7 +94,7 @@ class Regressifier:
 
 
 
-# In[19]:
+# In[63]:
 
 
 # -------------------------------------------------------------------------------------------- 
@@ -146,9 +146,11 @@ class DataScaler:
 
 
 
-# In[20]:
+# In[64]:
 
 
+from itertools import *
+from functools import reduce
 # ----------------------------------------------------------------------------------------- 
 # function to compute polynomial basis functions 
 # ----------------------------------------------------------------------------------------- 
@@ -162,29 +164,35 @@ def phi_polynomial(x,deg=1):           # x should be list or np.array or 1xD mat
     """
     x=np.array(np.mat(x))[0]           # ensure that x is a 1D array (first row of x)
     D=len(x)
-    assert (D==1) or ((D>1) and (deg<=3)), "phi_polynomial(x,deg) not implemented for D="+str(D)+" and deg="+str(deg)    # MODIFY CODE HERE FOR deg>3 !!!!
+    #assert (D==1) or ((D>1) and (deg<=3)), "phi_polynomial(x,deg) not implemented for D="+str(D)+" and deg="+str(deg)    # MODIFY CODE HERE FOR deg>3 !!!!
     if(D==1):
         phi = np.array([x[0]**i for i in range(deg+1)])
     else:
-        phi = np.array([])
-        if(deg>=0):
-            phi = np.concatenate((phi,[1]))      # include degree 0 terms
-            if(deg>=1): 
-                phi = np.concatenate((phi,x))    # includes degree 1 terms
-                if(deg>=2):
-                    for i in range(D):
-                        phi = np.concatenate(( phi, [x[i]*x[j] for j in range(i+1)] ))    # include degree 2 terms
-                    if(deg>=3):
-                        for i in range(D):
-                            for j in range(i+1):
-                                phi = np.concatenate(( phi, [x[i]*x[j]*x[k] for k in range(j+1)] ))   # include degree 3 terms
+        phi = np.array(phi_helper(x.tolist(),deg))
+        #phi = np.array([])
+        #if(deg>=0):
+        #    phi = np.concatenate((phi,[1]))      # include degree 0 terms
+        #    if(deg>=1): 
+        #        phi = np.concatenate((phi,x))    # includes degree 1 terms
+        #        if(deg>=2):
+        #            for i in range(D):
+        #                phi = np.concatenate(( phi, [x[i]*x[j] for j in range(i+1)] ))    # include degree 2 terms
+        #            if(deg>=3):
+        #                for i in range(D):
+        #                    for j in range(i+1):
+        #                        phi = np.concatenate(( phi, [x[i]*x[j]*x[k] for k in range(j+1)] ))   # include degree 3 terms
                         # EXTEND CODE HERE FOR deg>3!!!!
     return phi.T  # return basis function vector (=feature vector corresponding to data vector x)
 
+def phi_helper(x, deg):
+    if deg <= 0:
+        return [1]
+    else:
+        return phi_helper(x, deg-1) + [reduce(lambda a,b:a*b,combi) for combi in combinations_with_replacement(x, deg)]
 
 
 
-# In[21]:
+# In[68]:
 
 
 # -----------------------------------------------------------------------------------------
@@ -195,7 +203,7 @@ class LSRRegressifier(Regressifier):
     Class for Least Squares (or Maximum Likelihood) Linear Regressifier with sum of squares regularization 
     """
 
-    def __init__(self,lmbda=0,phi=lambda x: phi_polynomial(x,1),flagSTD=0,eps=1e-6):
+    def __init__(self,lmbda=0,phi=lambda x: phi_polynomial(x,1),flagSTD=0,eps=0.000001):
         """
         Constructor of class LSRegressifier
         :param lmbda: Regularization coefficient lambda
@@ -235,18 +243,20 @@ class LSRRegressifier(Regressifier):
         try:
             self.N,self.D = X.shape            # data matrix X has size N x D (N is number of data vectors, D is dimension of a vector)
             self.M = self.phi(self.D*[0]).size # get number of basis functions  
-            self.K = T.shape[1]                # DELTE dummy code (just required for dummy code in predict(.): number of output dimensions
-            PHI = None                         # REPLACE dummy code: compute design matrix
-            PHIT_PHI_lmbdaI = None             # REPLACE dummy code: compute PHI_T*PHI+lambda*I
-            PHIT_PHI_lmbdaI_inv = None         # REPLACE dummy code: compute inverse matrix (may be bad conditioned and fail)
-            self.W_LSR = None                  # REPLACE dummy code: compute regularized least squares weights 
+            #self.K = T.shape[1]                # DELTE dummy code (just required for dummy code in predict(.): number of output dimensions
+            PHI = np.array([np.transpose(phi(x)) for x in X])                        # REPLACE dummy code: compute design matrix
+            PHIT_PHI_lmbdaI = np.add(np.dot(PHI.T,PHI),np.dot(self.lmbda,np.identity(self.M))) 
+            #print(PHIT_PHI_lmbdaI)
+            # REPLACE dummy code: compute PHI_T*PHI+lambda*I
+            PHIT_PHI_lmbdaI_inv = np.linalg.inv(PHIT_PHI_lmbdaI)         # REPLACE dummy code: compute inverse matrix (may be bad conditioned and fail)
+            self.W_LSR = np.dot(np.dot(PHIT_PHI_lmbdaI_inv,PHI.T),T)# REPLACE dummy code: compute regularized least squares weights 
             # (iv) check numerical condition
-            Z=None                             # REPLACE dummy code: Compute Z:=PHIT_PHI_lmbdaI*PHIT_PHI_lmbdaI_inv-I which should become the zero matrix if good conditioned!
-            maxZ = 0                           # REPLACE dummy code: Compute maximum (absolute) componente of matrix Z (should be <eps for good conditioned problem)
+            Z=np.dot(PHIT_PHI_lmbdaI,PHIT_PHI_lmbdaI_inv)-np.identity(self.M)  # REPLACE dummy code: Compute Z:=PHIT_PHI_lmbdaI*PHIT_PHI_lmbdaI_inv-I which should become the zero matrix if good conditioned!
+            maxZ = np.max(Z)    # REPLACE dummy code: Compute maximum (absolute) componente of matrix Z (should be <eps for good conditioned problem)
             assert maxZ<=self.eps              # maxZ should be <eps for good conditioned problems (otherwise the result cannot be trusted!!!)
         except: 
             flagOK=0;
-            print("EXCEPTION DUE TO BAD CONDITION:flagOK=", flagOK, " maxZ=", maxZ)
+            print("EXCEPTION DUE TO BAD CONDITION:flagOK=", flagOK, " maxZ=", maxZ, " eps=", self.eps)
             raise
         return flagOK 
 
@@ -260,7 +270,7 @@ class LSRRegressifier(Regressifier):
         if flagSTD==None: flagSTD=self.flagSTD      # standardazion?
         if flagSTD>0: x=self.datascalerX.scale(x)   # if yes, then scale x before computing the prediction!
         phi_of_x = self.phi(x)                      # compute feature vector phi_of_x for data vector x
-        y=np.zeros((1,self.K)).T                    # REPLACE dummy code:  compute prediction y for data vector x 
+        y=np.dot(self.W_LSR.T, phi_of_x)                    # REPLACE dummy code:  compute prediction y for data vector x 
         if flagSTD>0: y=self.datascalerT.unscale(y) # scale prediction back to original range?
         return y                  # return prediction y for data vector x
 
@@ -268,7 +278,7 @@ class LSRRegressifier(Regressifier):
 
 
 
-# In[22]:
+# In[69]:
 
 
 # -----------------------------------------------------------------------------------------
@@ -330,7 +340,7 @@ class KNNRegressifier(Regressifier):
 
 
 
-# In[23]:
+# In[71]:
 
 
 # *******************************************************
@@ -356,7 +366,7 @@ if __name__ == '__main__':
 
     # (ii) define basis functions (phi should return list of basis functions; x should be a list)
     deg=2;                               # degree of polynomial
-    phi=lambda x: phi_polynomial(x,2)    # define phi by polynomial basis-functions up to degree deg 
+    phi=lambda x: phi_polynomial(x,1)    # define phi by polynomial basis-functions up to degree deg 
     print("phi(4)=", phi([4]))            # print basis function vector [1, x, x*x ...] for x=4
     print("phi([1,2])=", phi([1,2]))      # print basis function vector for two-dim. inputs (yields many output components) 
 
@@ -391,3 +401,139 @@ if __name__ == '__main__':
 
 
 
+
+# ###### a) Versuchen Sie zunächst den Aufbau des Moduls V2A2_Regression.py zu verstehen:
+
+# Betrachten Sie den Aufbau des Moduls durch Eingabe von pydoc V2A2_Regressifier.  
+# Welche Klassen gehören zu dem Modul und welchen Zweck haben sie jeweils?
+
+# - DataScaler: Standatisiert Daten
+# - Regressifier: Abstrakte Klasse für Regressierer
+# - KNNRegressifier: ermöglicht Regression mithilfe von Fast-KNN
+# - LSRRegressifier: ermöglicht Regression mithilfe von Fehlerquadratsummen
+# - 
+
+# Betrachten Sie nun die Basis-Klasse Regressifier im Quelltext: Wozu dienen jeweils
+# die Methoden fit(self,X,T), predict(self,x)
+# und crossvalidate(self,S,X,T) ?
+
+# - fit(self,X,T): Verlangt nach der implimentierung einer Methode die den Regressierer mit X und T trainiert.
+# - predict(self,x): Verlangt nach der implimentierung einer Methode die auf x eine Regression anwendet und eine Vorhersage zurückliefert 
+# - crossvalidate(self,S,X,T): Macht S-fache Kreuzvaliedierung mit den Daten,Labeln (X,T) und liefert als Ergebniss Informationen über die relativen und absoluten Fehlerwerte
+
+# Worin unterscheidet sich crossvalidate(.) von der entsprechenden Methode für
+# Klassifikation (siehe vorigen Versuch)?
+
+# - hier kann man noch angeben mit welcher Längenfunktion gearbeitet werden soll, und es werden andere Fehlerstatistiken zurückgegeben
+
+# ###### b) Betrachten Sie nun die Funktion phi_polynomial(x,deg):
+
+# Was berechnet die Funktion? Welches Ergebnis liefert phi_polynomial([3],5)?
+# Welches Ergebnis liefert phi_polynomial([3,5],2)?
+
+# In[74]:
+
+
+phi_polynomial([3],5)
+
+
+# In[75]:
+
+
+phi_polynomial([3,5],2)
+
+
+# - phi_polynomial(x,deg): berechnet die Basisfunktion für die Werte x mit dem grad deg
+
+# Geben Sie eine allgemeine Formel an für das Ergebnis von phi_polynomial([x1,x2],2)?
+
+# - [1, x1, x2, (x1)², x1*x2, (x2)²] 
+
+# Wozu braucht man diese Funktion im Zusammenhang mit Regression?
+
+# - Das Kreuzprodukt aus dieser Funktion und dem Zielwertevektor geben die Prognose bei der Regression
+
+# Bis zu welchem Polynomgrad kann die Funktion Basisfunktionen berechnen?
+# Erweitern Sie die Funktion mindestens bis Grad 5.
+
+# - momentan bis grad 3, siehe Verbesserung im code
+
+# In[83]:
+
+
+phi_polynomial([3,5],5)
+
+
+# ###### c) Betrachten Sie die Klasse LSRRegressifier:
+
+# Welche Art von Regressions-Modell berechnet diese Klasse?
+
+# - Fehlerquadratsummenregression mit Regularisierung
+
+# Wozu dienen jeweils die Parameter lmbda, phi, flagSTD und eps ?
+
+# - lmbda: Regularisierungsparameter
+# - phi: Basisfunktion
+# - flagSTD: gibt an ob die Daten Standatisiert werden sollen
+# - eps: höchster erlaubter Fehlerrestwert 
+#         
+
+# Welche Rolle spielt hier die Klasse DataScaler?
+# In welchen Methoden und zu welchem Zweck werden die Daten ggf. umskaliert?
+# Welches Problem kann auftreten wenn man dies nicht tut?
+# Wozu braucht man die Variablen Z und maxZ in der Methode fit(.)?
+
+# - DataScaler wird in fit() und predict() verwendet um Daten zu Standartisieren 
+# - nicht scalierte Daten werde können kleinste abweichungen in Gewichten zu großen und/oder unterschiedlichen Änderungen führen.
+# - Z ist die Matrix mit den Fehlerwerten die durch Invertierung entstehen.
+# - maxZ ist der größte Wert aus Z und wird verwendet um zu bestimmen ob der Fehlerwert annehmbar ist
+
+# Vervollständigen Sie die Methoden fit(self,X,T,...) und predict(self,x,...)
+# (vgl. vorige Aufgabe).
+
+# - siehe code
+
+# ###### d) Betrachten Sie die Klasse KNNRegressifier:
+
+# Welche Art von Regressions-Modell berechnet diese Klasse?
+
+# - fast K-Nearest-Neighbor-Regression
+
+# Wozu dienen jeweils die Parameter K und flagKLinReg?
+
+# - K: Anzahl der NN die verwendet werden um eine Vorhersage zu treffen
+# - flagKLinReg: gibt an ob eine Regression verwendet werden soll oder nur der Mittelwert aus den NN genommen wird
+
+# Beschreiben Sie kurz in eigenen Worten (2-3 Sätze) auf welche Weise die Prädiktion
+# y(x) berechnet wird.
+
+# - Es werden die KNNs für x ermittelt. Damit wird ein LSRRegressifier trainiert, der dann nach einer prediction gefragt wird.
+
+# ###### e) Betrachten Sie abschließend den Modultest:
+
+# Beschreiben Sie kurz was im Modultest passiert.
+
+# - es wird ein Linearer Datensatz erstellt
+# - die Funktion phi wird neu definiert und auf Grad 2 festgesetzt
+# - LSR Regression wird durchgeführt und Kreuzvalidiert
+# - KNN Regression wird durchgeführt und Kreuzvalidiert
+
+# Welche Gewichte W werden gelernt? Wie lautet also die gelernte Prädiktionsfunktion?
+# Welche Funktion sollte sich idealerweise (für N → ∞) ergeben?
+
+# w0 = [3.78705442]  
+# w1 = [2.01036841]  
+#    
+# y = 3.787 + 2.010*x
+# 
+# y = 4 + 2*x  für N → ∞
+
+# Welche Ergebnisse liefert die Kreuzvalidierung? Was bedeuten die Werte?
+
+#  - (E,sd,min,max)= (0.8335277318740052, 0.6423712068147653, 0.030450286307427632, 3.059745154084382)
+#  - E ist der mittlere Fehlerwert
+#  - sd ist die Standartabweichung der Fehler
+#  - min ist der kleinste Fehlerwert
+#  - max ist der größte Fehlerwert
+
+# Vergleichen und Bewerten Sie die Ergebnisse von Least Squares Regression gegenüber der KNN-Regression (nach Optimierung der Hyper-Parameter λ, K, ...).
