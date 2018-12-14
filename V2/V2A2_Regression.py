@@ -94,7 +94,7 @@ class Regressifier:
 
 
 
-# In[63]:
+# In[2]:
 
 
 # -------------------------------------------------------------------------------------------- 
@@ -146,7 +146,7 @@ class DataScaler:
 
 
 
-# In[64]:
+# In[3]:
 
 
 from itertools import *
@@ -192,7 +192,7 @@ def phi_helper(x, deg):
 
 
 
-# In[68]:
+# In[4]:
 
 
 # -----------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ class LSRRegressifier(Regressifier):
 
 
 
-# In[69]:
+# In[5]:
 
 
 # -----------------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ class KNNRegressifier(Regressifier):
             t_out=np.mean([self.T[i] for i in idxNN])
         else:
             # do a linear regression of the KNNs
-            lsr=LSRegressifier(lmbda=0.0001,phi=lambda x:phi_polynomial(x,1),flagSTD=1)
+            lsr=LSRRegressifier(lmbda=0.0001,phi=lambda x:phi_polynomial(x,1),flagSTD=1)
             lsr.fit(self.X[idxNN],self.T[idxNN])
             t_out=lsr.predict(x)
         return t_out
@@ -340,7 +340,7 @@ class KNNRegressifier(Regressifier):
 
 
 
-# In[71]:
+# In[17]:
 
 
 # *******************************************************
@@ -390,7 +390,7 @@ if __name__ == '__main__':
     print("\n-----------------------------------------")
     print("Do a KNN-Regression")
     print("-----------------------------------------")
-    K=5;
+    K=2;
     knnr = KNNRegressifier(K)
     knnr.fit(X,T)
     print("prediction of x=",x,"is y=",knnr.predict(x))
@@ -402,7 +402,27 @@ if __name__ == '__main__':
 
 
 
-# ###### a) Versuchen Sie zunächst den Aufbau des Moduls V2A2_Regression.py zu verstehen:
+# In[16]:
+
+
+temp = []
+for i,e in enumerate(KNNErrors):
+    temp.append((e[2][3],i))
+temp.sort()
+#print(temp)
+
+smallest_mean= KNNErrors[1][2]
+smallest_sd= KNNErrors[1][2]
+smallest_min= KNNErrors[13][2]
+smallest_max= KNNErrors[1][2]
+print(smallest_mean)
+print(smallest_sd)
+print(smallest_min)
+print(smallest_max)
+print(KNNErrors[1])
+
+
+# ## a) Versuchen Sie zunächst den Aufbau des Moduls V2A2_Regression.py zu verstehen:
 
 # Betrachten Sie den Aufbau des Moduls durch Eingabe von pydoc V2A2_Regressifier.  
 # Welche Klassen gehören zu dem Modul und welchen Zweck haben sie jeweils?
@@ -411,7 +431,6 @@ if __name__ == '__main__':
 # - Regressifier: Abstrakte Klasse für Regressierer
 # - KNNRegressifier: ermöglicht Regression mithilfe von Fast-KNN
 # - LSRRegressifier: ermöglicht Regression mithilfe von Fehlerquadratsummen
-# - 
 
 # Betrachten Sie nun die Basis-Klasse Regressifier im Quelltext: Wozu dienen jeweils
 # die Methoden fit(self,X,T), predict(self,x)
@@ -537,3 +556,10 @@ phi_polynomial([3,5],5)
 #  - max ist der größte Fehlerwert
 
 # Vergleichen und Bewerten Sie die Ergebnisse von Least Squares Regression gegenüber der KNN-Regression (nach Optimierung der Hyper-Parameter λ, K, ...).
+
+# LSR: absolute errors (E,sd,min,max)= (0.7210491003592423, 0.5070165487566235, 0.0066007843635347285, 2.780939336314603)    
+# KNN: absolute errors (E,sd,min,max)= (1.1743092886650586, 0.9170722237516987, 0.0038023455924474092, 4.2882465799825695)  
+# LSR: relative errors (E,sd,min,max)= (0.02240702968734219, 0.028216719179408916, 0.0001525998169486947, 0.14635559861181296)  
+# KNN: relative errors (E,sd,min,max)= (0.05354319692710508, 0.13202983166413382, 5.0979643788569236e-05, 1.0603171407681475)
+
+# - LSR scheint in fast allen Bereichen wesentlich bessere Ergebnisse als KNNR zu liefern. 

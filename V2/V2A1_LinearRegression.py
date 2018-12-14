@@ -1,7 +1,49 @@
 
 # coding: utf-8
 
-# In[1]:
+# # Aufgabe 1: (10+9+14+12 = 45 Punkte)  
+# Thema: Lineare “Least-Squares” Regression mit Regularisierung in Python  
+# Gegeben seien Daten {(xn, tn)|n = 1, ..., N } welche ursprünglich von der Parabel f (x ) = w0+
+# w1x +w2x  
+# 2 mit w0 = 2, w1 = −1, w2 = 3 gesampelt wurden, aber nun mit Rauschen behaftet  
+# sind. Zu diesen Daten soll ein lineares Regressionsmodell y = wTφ(x ) mit polynomiellen  
+# Basisfunktionen φ bestimmt werden.  
+#   
+# ##### a) Betrachten Sie das Programmgerüst V2A1_LinearRegression.py aus dem Praktikumsverzeichnis:  
+
+# Erklären Sie kurz in eigenen Worten (jeweils 1-2 Sätze) wozu die Funktionen fun_true(.),
+# generateDataSet(.), getDataError(.) und phi_polynomial(.) dienen. Versuchen
+# Sie den Python-Code zu verstehen (muss nicht dokumentiert werden).
+
+# - fun_true(X): berechnet für jedes Element vom X das ensprechende y nach der Parabelfunktion y=3*x²-x+2  
+# - generateDataset(N,xmin,xmax,sd_noise): erstellt eine N große Liste von x Werten mit dazugehörigen zielwerten (y) die aber mit einem rauschen gemischt werden  
+# - getDataError(Y,T): berechnet die Fehlerquadratsumme für T und Y 
+# - phi_polynomial(x,deg=1): berechnet den Merkmalsvektor für x bis zum grad deg(standartmäßig 1)
+
+# Von welcher Funktion sind die Original-Daten (xn, tn) gesampelt?
+
+# - fun_true(X) / t=3*x²-x+2
+
+# Wie lauten die Basisfunktionen φj(x ) für j = 1, ...,deg des linearen Modells?
+
+# - φ = x^5 + x^4 + x^3 + x^2 + x + 1
+
+# Welche Rolle hat die Variable lmbda?
+
+# - lmbda ist der Regularisierungsparameter 
+
+# Worin unterscheiden sich die Variablen X,T von X_test,T_test?
+
+# - X,T haben die gleichen Parameter wie X_test, T_test sind aber mit anderen Zufallswerten erstellt worden
+
+# Was stellen im Plot die grünen Kreuze/Punkte, grüne Kurve, rote Kurve dar?
+
+# - grüne Kreuze sind die Lerndaten
+# - grüne Punkte sind die Testdaten
+# - grüne Kurve ist die Ausgangsfunktion
+# - rote Kurve ist die von uns vorhergesagte Funktion
+
+# In[45]:
 
 
 # V2A1_LinearRegression.py 
@@ -22,15 +64,19 @@ def generateDataSet(N,xmin,xmax,sd_noise):    # generate data matrix X and targe
 
 def getDataError(Y,T):                        # compute data error (least squares) between prediction Y and true target values T
     D=np.multiply(Y-T,Y-T);                   # squared differences between Y and T
-    return 0.5*sum(sum(D));                   # return least-squares data error function E_D
+    return 0.5*sum(sum(D)); #eine Summe zu viel?   E_D
 
 def phi_polynomial(x,deg=1):                            # compute polynomial basis function vector phi(x) for data x 
     assert(np.shape(x)==(1,)), "currently only 1dim data supported"
     return np.array([x[0]**i for i in range(deg+1)]).T; # returns feature vector phi(x)=[1 x x**2 x**3 ... x**deg]
 
+def predict(x,w):
+    temp = np.array(sum([g*(x**i) for i,g in enumerate(w)]))
+    return temp
 
 
-# In[2]:
+
+# In[46]:
 
 
 # (I) generate data 
@@ -44,7 +90,7 @@ print("X=",X, "T=",T)
 
 
 
-# In[3]:
+# In[47]:
 
 
 # (II) generate linear least squares model for regression
@@ -55,17 +101,17 @@ N,K = np.shape(T)                                                 # shape of tar
 PHI = np.array([phi_polynomial(X[i],deg).T for i in range(N)])    # generate design matrix
 N,M = np.shape(PHI)                                               # shape of design matrix
 print("PHI=", PHI)
-W_LSR = np.zeros((M,1))                                           # REPLACE THIS BY REGULARIZED LEAST SQUARES WEIGHTS!  
+W_LSR = np.dot(np.linalg.pinv(PHI),T)
 print("W_LSR=",W_LSR)
 
 
 
-# In[4]:
+# In[48]:
 
 
 # (III) make predictions for test data
-Y_test = np.zeros((N,1))   # REPLACE THIS BY PROGNOSIS FOR TEST DATA X_test! (result should be N x 1 matrix, i.e., one prognosis per row)
-Y_learn = np.zeros((N,1))  # REPLACE THIS BY PROGNOSIS FOR TEST DATA X_test! (result should be N x 1 matrix, i.e., one prognosis per row)
+Y_test = np.array([predict(xt, W_LSR) for xt in X_test])   # REPLACE THIS BY PROGNOSIS FOR TEST DATA X_test! (result should be N x 1 matrix, i.e., one prognosis per row)
+Y_learn = np.array([predict(xt, W_LSR) for xt in X])  # REPLACE THIS BY PROGNOSIS FOR TEST DATA X_test! (result should be N x 1 matrix, i.e., one prognosis per row)
 print("Y_test=",Y_test)
 print("T_test=",T_test)
 print("learn data error = ", getDataError(Y_learn,T))
@@ -75,7 +121,7 @@ print("mean weight = ", np.mean(np.mean(np.abs(W_LSR))))
 
 
 
-# In[5]:
+# In[49]:
 
 
 # (IV) plot data
