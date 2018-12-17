@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[8]:
 
 
 #!/usr/bin/env python
@@ -94,7 +94,7 @@ class Regressifier:
 
 
 
-# In[2]:
+# In[9]:
 
 
 # -------------------------------------------------------------------------------------------- 
@@ -109,7 +109,7 @@ class DataScaler:
     def __init__(self,X):               # X is data matrix, where rows are data vectors
         """
         Constructor: Set parameters (mean, std,...) to standardize data matrix X
-        :param X: Data matrix of size NxD the standardization parameters (mean, std, ...) should be computed for 
+        :param X: Data matrix of size NxD the standardization parameters (mean, std, ...) should be computed for
         :returns: object of class DataScaler
         """
         self.meanX = np.mean(X,0)       # mean values for each feature column
@@ -146,7 +146,7 @@ class DataScaler:
 
 
 
-# In[3]:
+# In[10]:
 
 
 from itertools import *
@@ -188,11 +188,12 @@ def phi_helper(x, deg):
     if deg <= 0:
         return [1]
     else:
-        return phi_helper(x, deg-1) + [reduce(lambda a,b:a*b,combi) for combi in combinations_with_replacement(x, deg)]
+        ret = phi_helper(x, deg-1) 
+        ret += [reduce(lambda a,b:a*b,combi) for combi in combinations_with_replacement(x, deg)]
+        return ret
 
 
-
-# In[4]:
+# In[11]:
 
 
 # -----------------------------------------------------------------------------------------
@@ -278,7 +279,7 @@ class LSRRegressifier(Regressifier):
 
 
 
-# In[5]:
+# In[12]:
 
 
 # -----------------------------------------------------------------------------------------
@@ -340,7 +341,7 @@ class KNNRegressifier(Regressifier):
 
 
 
-# In[17]:
+# In[13]:
 
 
 # *******************************************************
@@ -384,7 +385,8 @@ if __name__ == '__main__':
     # do S-fold crossvalidation
     S=3
     err_abs,err_rel = lsr.crossvalidate(S,X,T)
-    print("LSRRegression cross-validation: absolute errors (E,sd,min,max)=", err_abs, "  relative errors (E,sd,min,max)=", err_rel)
+    print("LSRRegression cross-validation: absolute errors (E,sd,min,max)=",
+          err_abs, "  relative errors (E,sd,min,max)=", err_rel)
 
     # (iv) compute KNN-regression
     print("\n-----------------------------------------")
@@ -397,29 +399,10 @@ if __name__ == '__main__':
 
     # do S-fold crossvalidation
     err_abs,err_rel = knnr.crossvalidate(S,X,T)
-    print("KNNRegression cross-validation: absolute errors (E,sd,min,max)=", err_abs, "  relative errors (E,sd,min,max)=", err_rel) 
+    print("KNNRegression cross-validation: absolute errors (E,sd,min,max)=", 
+          err_abs, "  relative errors (E,sd,min,max)=", err_rel) 
 
 
-
-
-# In[16]:
-
-
-temp = []
-for i,e in enumerate(KNNErrors):
-    temp.append((e[2][3],i))
-temp.sort()
-#print(temp)
-
-smallest_mean= KNNErrors[1][2]
-smallest_sd= KNNErrors[1][2]
-smallest_min= KNNErrors[13][2]
-smallest_max= KNNErrors[1][2]
-print(smallest_mean)
-print(smallest_sd)
-print(smallest_min)
-print(smallest_max)
-print(KNNErrors[1])
 
 
 # ## a) Versuchen Sie zunächst den Aufbau des Moduls V2A2_Regression.py zu verstehen:
@@ -450,13 +433,13 @@ print(KNNErrors[1])
 # Was berechnet die Funktion? Welches Ergebnis liefert phi_polynomial([3],5)?
 # Welches Ergebnis liefert phi_polynomial([3,5],2)?
 
-# In[74]:
+# In[14]:
 
 
 phi_polynomial([3],5)
 
 
-# In[75]:
+# In[15]:
 
 
 phi_polynomial([3,5],2)
@@ -477,7 +460,7 @@ phi_polynomial([3,5],2)
 
 # - momentan bis grad 3, siehe Verbesserung im code
 
-# In[83]:
+# In[16]:
 
 
 phi_polynomial([3,5],5)

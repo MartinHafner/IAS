@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[19]:
+# In[2]:
 
 
 #!/usr/bin/env python
@@ -53,13 +53,13 @@ print("number of basis functions M=", len(phi_polynomial(X[1],deg)))
 
 # (III) Do least-squares regression with regularization 
 print("\n#### Least Squares Regression with regularization lambda=", lmbda, " ####")
-lsr = LSRRegressifier(lmbda=lmbda,phi=lambda x: phi_polynomial(x,deg),flagSTD=flagSTD)  # REPLACE dummy code: Create and fit Least-Squares Regressifier using polynomial basis function of degree deg and flagSTD for standardization of data  
+lsr = LSRRegressifier(lmbda=lmbda,phi=lambda x: phi_polynomial(x,deg),flagSTD=flagSTD)   
 lsr.fit(X,T)
-print("lsr.W_LSR=",lsr.W_LSR)    # REPLACE dummy code: print weight vector for least squares regression  
+print("lsr.W_LSR=",lsr.W_LSR)      
 print("III.1) Some predictions on the training data:")
 for i in range(N_pred): 
     n=idx_perm[i]
-    print("Prediction for X[",n,"]=",X[n]," is y=",lsr.predict(X[n]),", whereas true value is T[",n,"]=",T[n])   # REPLACE dummy code: compute prediction for X[n]
+    print("Prediction for X[",n,"]=",X[n]," is y=",lsr.predict(X[n]),", whereas true value is T[",n,"]=",T[n]) 
 print("III.2) Some predicitions for new test vectors:")
 print("Prediction for x_test_1 is y=", lsr.predict(x_test_1))    # REPLACE dummy code: compute prediction for x_test_1
 print("Prediction for x_test_2 is y=", lsr.predict(x_test_2))    # REPLACE dummy code: compute prediction for x_test_2
@@ -94,25 +94,6 @@ for lmb in lmbdaRange:
         err_abs,err_rel = lsr.crossvalidate(S,X,T)                  # REPLACE dummy code: do cross validation!!
         LSRErrors.append((lmb, d, err_abs, err_rel))
         print("absolute errors (E,sd,min,max)=", err_abs, "\nrelative errors (E,sd,min,max)=", err_rel) 
-
-
-# In[36]:
-
-
-temp = []
-for i,e in enumerate(LSRErrors):
-    temp.append((e[2][3],i))
-temp.sort()
-print(temp)
-
-smallest_mean= LSRErrors[4]
-smallest_sd= LSRErrors[25]
-smallest_min= LSRErrors[4]
-smallest_max= LSRErrors[37]
-print(smallest_mean)
-print(smallest_sd)
-print(smallest_min)
-print(smallest_max)
 
 
 # In[20]:
@@ -159,26 +140,6 @@ for f in flagRange:
         err_abs,err_rel = knnr.crossvalidate(S,X,T)                   # REPLACE dummy code: do cross validation!! 
         KNNErrors.append((f, k, err_abs, err_rel))
         print("absolute errors (E,sd,min,max)=", err_abs, "\nrelative errors (E,sd,min,max)=", err_rel) 
-
-
-# In[18]:
-
-
-temp = []
-for i,e in enumerate(KNNErrors):
-    temp.append((e[2][3],i))
-temp.sort()
-#print(temp)
-
-smallest_mean= KNNErrors[25][3]
-smallest_sd= KNNErrors[26][3]
-smallest_min= KNNErrors[19][3]
-smallest_max= KNNErrors[12][3]
-print(smallest_mean)
-print(smallest_sd)
-print(smallest_min)
-print(smallest_max)
-print(KNNErrors[26])
 
 
 # ###### a) Vervollständigen Sie das Programmgerüst V2A3_regression_airfoilnoise.py um eine Least-Squares-Regression auf den Daten zu berechnen. Optimieren Sie die HyperParameter um bei einer S = 3-fachen Kreuzvalidierung möglichst kleine Fehlerwerte zu erhalten.

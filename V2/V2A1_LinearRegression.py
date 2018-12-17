@@ -43,7 +43,7 @@
 # - grüne Kurve ist die Ausgangsfunktion
 # - rote Kurve ist die von uns vorhergesagte Funktion
 
-# In[45]:
+# In[1]:
 
 
 # V2A1_LinearRegression.py 
@@ -62,13 +62,14 @@ def generateDataSet(N,xmin,xmax,sd_noise):    # generate data matrix X and targe
         T=T+np.random.normal(0,sd_noise,X.shape) # add noise 
     return X,T
 
-def getDataError(Y,T):                        # compute data error (least squares) between prediction Y and true target values T
-    D=np.multiply(Y-T,Y-T);                   # squared differences between Y and T
+def getDataError(Y,T):      # compute data error (least squares) between prediction Y and true target values T
+    D=np.multiply(Y-T,Y-T); # squared differences between Y and T
     return 0.5*sum(sum(D)); #eine Summe zu viel?   E_D
 
-def phi_polynomial(x,deg=1):                            # compute polynomial basis function vector phi(x) for data x 
+def phi_polynomial(x,deg=1):    # compute polynomial basis function vector phi(x) for data x 
     assert(np.shape(x)==(1,)), "currently only 1dim data supported"
-    return np.array([x[0]**i for i in range(deg+1)]).T; # returns feature vector phi(x)=[1 x x**2 x**3 ... x**deg]
+    return np.array([x[0]**i for i in range(deg+1)]).T; 
+    # returns feature vector phi(x)=[1 x x**2 x**3 ... x**deg]
 
 def predict(x,w):
     temp = np.array(sum([g*(x**i) for i,g in enumerate(w)]))
@@ -76,7 +77,7 @@ def predict(x,w):
 
 
 
-# In[46]:
+# In[2]:
 
 
 # (I) generate data 
@@ -90,7 +91,7 @@ print("X=",X, "T=",T)
 
 
 
-# In[47]:
+# In[3]:
 
 
 # (II) generate linear least squares model for regression
@@ -106,12 +107,12 @@ print("W_LSR=",W_LSR)
 
 
 
-# In[48]:
+# In[4]:
 
 
 # (III) make predictions for test data
-Y_test = np.array([predict(xt, W_LSR) for xt in X_test])   # REPLACE THIS BY PROGNOSIS FOR TEST DATA X_test! (result should be N x 1 matrix, i.e., one prognosis per row)
-Y_learn = np.array([predict(xt, W_LSR) for xt in X])  # REPLACE THIS BY PROGNOSIS FOR TEST DATA X_test! (result should be N x 1 matrix, i.e., one prognosis per row)
+Y_test = np.array([predict(xt, W_LSR) for xt in X_test])
+Y_learn = np.array([predict(xt, W_LSR) for xt in X])  
 print("Y_test=",Y_test)
 print("T_test=",T_test)
 print("learn data error = ", getDataError(Y_learn,T))
@@ -121,13 +122,14 @@ print("mean weight = ", np.mean(np.mean(np.abs(W_LSR))))
 
 
 
-# In[49]:
+# In[5]:
 
 
 # (IV) plot data
 ymin,ymax = -50.0,150.0                     # interval of y data
 x_=np.arange(xmin,xmax,0.01)                # densely sampled x values
-Y_LSR = np.array([np.dot(W_LSR.T,np.array([phi_polynomial([x],deg)]).T)[0] for x in x_]);   # least squares prediction
+Y_LSR = np.array([np.dot(W_LSR.T,np.array([phi_polynomial([x],deg)]).T)[0] for x in x_]);
+# least squares prediction
 Y_true = fun_true(x_).flat
 
 fig = plt.figure()
